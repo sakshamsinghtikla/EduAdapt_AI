@@ -9,6 +9,7 @@ from app.graph.event_processor import event_processor
 from app.graph.feature_store import feature_store
 from app.models.baseline import baseline_model
 from app.models.recommender import recommender
+from app.training.dataset_builder import dataset_builder
 from app.utils.metrics import metrics_store
 
 
@@ -144,4 +145,23 @@ def debug_events(limit: int = 10) -> dict[str, Any]:
         "event_count": len(feature_store.events),
         "event_log_path": str(feature_store.event_log_path),
         "recent_events": feature_store.list_recent_events(safe_limit),
+    }
+
+
+@app.post("/admin/build_dataset")
+def build_dataset(min_history: int = 0) -> dict[str, Any]:
+    safe_min_history = max(0, min(min_history, 100))
+    summary = dataset_builder.build_dataset(min_history=safe_min_history)
+    return {
+        "message": "Temporal dataset built",
+        "summary": summary,
+    }
+
+
+@app.get("/debug/dataset")
+def debug_dataset(limit: int = 5) -> dict[str, Any]:
+    safe_limit = max(1, min(limit, 50))
+    return {
+        "summary": dataset_builder.load_summary(),
+        "samples": dataset_builder.preview_samples(limit=safe_limit),
     }

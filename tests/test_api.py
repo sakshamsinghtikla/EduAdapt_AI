@@ -65,3 +65,34 @@ def test_submit_answer_and_event_logging() -> None:
     events_payload = debug_events.json()
     assert events_payload["event_count"] >= 1
     assert len(events_payload["recent_events"]) >= 1
+
+
+def test_build_temporal_dataset() -> None:
+    first = client.post("/start_session", json={"student_id": "s002"}).json()
+    qid = first["first_question"]["question_id"]
+
+    submit = client.post(
+        "/submit_answer",
+        json={
+            "student_id": "s002",
+            "question_id": qid,
+            "selected_option": "B",
+            "response_time": 9.5,
+        },
+    )
+    assert submit.status_code == 200
+
+    response = client.post("/admin/build_dataset?min_history=0")
+    assert response.status_code == 200
+    payload = response.json()
+
+    assert payload["message"] == "Temporal dataset built"
+    assert payload["summary"]["event_count"] >= 1
+    assert payload["summary"]["sample_count"] >= 1
+
+    preview = client.get("/debug/dataset")
+    assert preview.status_code == 200
+    preview_payload = preview.json()
+    assert "summary" in preview_payload
+    assert "samples" in preview_payload
+    assert len(preview_payload["samples"]) >= 1
