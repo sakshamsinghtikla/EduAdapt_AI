@@ -8,3 +8,4 @@ locust_stats*.csv
 .coverage
 htmlcov/
 *.egg-info/
+app/data/runtime/
