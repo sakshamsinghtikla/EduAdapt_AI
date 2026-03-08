@@ -11,7 +11,7 @@ from app.models.baseline import baseline_model
 from app.models.recommender import recommender
 from app.training.dataset_builder import dataset_builder
 from app.utils.metrics import metrics_store
-
+from app.training.baseline_trainer import baseline_trainer
 
 app = FastAPI(title="EduAdapt-AI", version="0.1.0")
 
@@ -165,3 +165,12 @@ def debug_dataset(limit: int = 5) -> dict[str, Any]:
         "summary": dataset_builder.load_summary(),
         "samples": dataset_builder.preview_samples(limit=safe_limit),
     }
+    
+    @app.post("/admin/train_baseline")
+def train_baseline() -> dict[str, Any]:
+    return baseline_trainer.train()
+
+
+@app.get("/debug/baseline_metrics")
+def debug_baseline_metrics() -> dict[str, Any]:
+    return baseline_trainer.load_metrics()

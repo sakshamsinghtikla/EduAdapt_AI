@@ -23,7 +23,7 @@ EduAdapt-AI/
 │   ├── data/
 │   │   ├── simulator.py
 │   │   ├── question_bank.json
-│   │   └── seed_students.json
+│   │   └── seed_students.json'
 │   ├── graph/
 │   │   ├── event_processor.py
 │   │   └── feature_store.py
@@ -160,3 +160,10 @@ Targets:
 - next-question generation time
 - performance under burst traffic
 - baseline vs dynamic-GNN comparison
+
+## Baseline training
+
+After generating interaction events and building the temporal dataset, train the baseline classifier:
+
+```bash
+python scripts/train_baseline.py

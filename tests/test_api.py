@@ -96,3 +96,32 @@ def test_build_temporal_dataset() -> None:
     assert "summary" in preview_payload
     assert "samples" in preview_payload
     assert len(preview_payload["samples"]) >= 1
+    
+    def test_train_baseline_after_dataset_build() -> None:
+    first = client.post("/start_session", json={"student_id": "s003"}).json()
+    qid = first["first_question"]["question_id"]
+
+    submit = client.post(
+        "/submit_answer",
+        json={
+            "student_id": "s003",
+            "question_id": qid,
+            "selected_option": "A",
+            "response_time": 10.0,
+        },
+    )
+    assert submit.status_code == 200
+
+    build = client.post("/admin/build_dataset?min_history=0")
+    assert build.status_code == 200
+
+    train = client.post("/admin/train_baseline")
+    assert train.status_code == 200
+    payload = train.json()
+
+    assert payload["message"] == "Baseline model trained successfully"
+    assert "metrics" in payload
+    assert "accuracy" in payload["metrics"]
+
+    metrics = client.get("/debug/baseline_metrics")
+    assert metrics.status_code == 200
