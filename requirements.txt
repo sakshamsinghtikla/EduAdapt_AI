@@ -9,3 +9,4 @@ pytest
 httpx
 redis
 torch
+joblib
