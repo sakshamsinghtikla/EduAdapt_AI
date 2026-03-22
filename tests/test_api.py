@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from app.graph.feature_store import feature_store
 
 from app.api.main import app
 
@@ -96,21 +97,37 @@ def test_build_temporal_dataset() -> None:
     assert "summary" in preview_payload
     assert "samples" in preview_payload
     assert len(preview_payload["samples"]) >= 1
-    
-    def test_train_baseline_after_dataset_build() -> None:
-    first = client.post("/start_session", json={"student_id": "s003"}).json()
-    qid = first["first_question"]["question_id"]
 
-    submit = client.post(
+
+def test_train_baseline_after_dataset_build() -> None:
+    first = client.post("/start_session", json={"student_id": "s003"}).json()
+    qid1 = first["first_question"]["question_id"]
+
+    submit1 = client.post(
         "/submit_answer",
         json={
             "student_id": "s003",
-            "question_id": qid,
+            "question_id": qid1,
             "selected_option": "A",
             "response_time": 10.0,
         },
     )
-    assert submit.status_code == 200
+    assert submit1.status_code == 200
+
+    second = client.post("/start_session", json={"student_id": "s004"}).json()
+    qid2 = second["first_question"]["question_id"]
+    q2_correct_option = feature_store.get_question(qid2)["correct_option"]
+
+    submit2 = client.post(
+        "/submit_answer",
+        json={
+            "student_id": "s004",
+            "question_id": qid2,
+            "selected_option": q2_correct_option,
+            "response_time": 9.0,
+        },
+    )
+    assert submit2.status_code == 200
 
     build = client.post("/admin/build_dataset?min_history=0")
     assert build.status_code == 200
