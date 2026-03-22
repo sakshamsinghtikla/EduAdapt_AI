@@ -4,15 +4,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import joblib
-import pandas as pd
-from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-
 from app.graph.feature_store import RUNTIME_DIR
 
 
@@ -57,7 +48,9 @@ class BaselineTrainer:
         "time_since_last_interaction_sec",
     ]
 
-    def load_dataset(self) -> pd.DataFrame:
+    def load_dataset(self):
+        import pandas as pd
+
         if not DATASET_CSV_PATH.exists():
             raise FileNotFoundError(
                 f"Dataset not found at {DATASET_CSV_PATH}. Build the temporal dataset first."
@@ -65,6 +58,15 @@ class BaselineTrainer:
         return pd.read_csv(DATASET_CSV_PATH)
 
     def train(self) -> dict[str, Any]:
+        import pandas as pd
+        import joblib
+        from sklearn.compose import ColumnTransformer
+        from sklearn.impute import SimpleImputer
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
+        from sklearn.pipeline import Pipeline
+        from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
         df = self.load_dataset()
 
         if len(df) < 5:
@@ -90,6 +92,34 @@ class BaselineTrainer:
 
         if len(train_df) == 0:
             raise ValueError("Not enough chronological samples to create a train/test split.")
+
+        if train_df[self.target_column].nunique() < 2 and df[self.target_column].nunique() >= 2:
+            train_classes = set(train_df[self.target_column].unique().tolist())
+            missing_classes = [
+                cls for cls in df[self.target_column].unique().tolist()
+                if cls not in train_classes
+            ]
+
+            for missing_class in missing_classes:
+                candidate_rows = test_df[test_df[self.target_column] == missing_class]
+                if not candidate_rows.empty:
+                    row_to_move = candidate_rows.iloc[[0]].copy()
+                    original_idx = row_to_move.index[0]
+                    test_df = test_df.drop(index=original_idx)
+                    train_df = pd.concat([train_df, row_to_move], ignore_index=True)
+
+        if train_df[self.target_column].nunique() < 2:
+            raise ValueError(
+                "Training split still contains only one class. "
+                "Need more varied interaction data before training."
+            )
+
+        if len(test_df) == 0:
+            test_df = train_df.tail(1).copy()
+            train_df = train_df.iloc[:-1].copy()
+
+        if len(train_df) == 0:
+            raise ValueError("Training split became empty after adjustment.")
 
         X_train = train_df[self.feature_columns]
         y_train = train_df[self.target_column]
