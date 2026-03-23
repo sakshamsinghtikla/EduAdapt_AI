@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function QuestionCard({ question, onSubmit, isSubmitting }) {
   const [selectedOption, setSelectedOption] = useState("");
   const [responseTime, setResponseTime] = useState(10);
+
+  useEffect(() => {
+    setSelectedOption("");
+  }, [question?.question_id]);
 
   if (!question) {
     return (
@@ -11,6 +15,8 @@ export default function QuestionCard({ question, onSubmit, isSubmitting }) {
       </div>
     );
   }
+
+  const options = Array.isArray(question.options) ? question.options : [];
 
   const handleSubmit = () => {
     if (!selectedOption) return;
@@ -30,18 +36,22 @@ export default function QuestionCard({ question, onSubmit, isSubmitting }) {
         </span>
       </div>
 
-      <div className="option-grid">
-        {["A", "B", "C", "D"].map((option) => (
-          <button
-            key={option}
-            type="button"
-            className={`option-button ${selectedOption === option ? "active" : ""}`}
-            onClick={() => setSelectedOption(option)}
-          >
-            Option {option}
-          </button>
-        ))}
-      </div>
+      {options.length > 0 ? (
+        <div className="option-grid">
+          {options.map((option, index) => (
+            <button
+              key={`${question.question_id}-${index}-${option}`}
+              type="button"
+              className={`option-button ${selectedOption === option ? "active" : ""}`}
+              onClick={() => setSelectedOption(option)}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="error">No options found for this question.</p>
+      )}
 
       <div style={{ marginTop: 16 }}>
         <label>

@@ -61,3 +61,43 @@ export async function getModelComparison() {
   const response = await fetch(`${API_BASE}/debug/model_comparison`);
   return handleResponse(response);
 }
+
+export async function getBenchmarkSummary() {
+  const response = await fetch(`${API_BASE}/debug/benchmark_summary`);
+  return handleResponse(response);
+}
+
+export async function buildDataset() {
+  const response = await fetch(`${API_BASE}/admin/build_dataset?min_history=0`, {
+    method: "POST",
+  });
+  return handleResponse(response);
+}
+
+export async function trainBaseline() {
+  const response = await fetch(`${API_BASE}/admin/train_baseline`, {
+    method: "POST",
+  });
+  return handleResponse(response);
+}
+
+export async function trainDynamicGnn() {
+  const response = await fetch(`${API_BASE}/admin/train_dynamic_gnn`, {
+    method: "POST",
+  });
+  return handleResponse(response);
+}
+
+export async function compareModels() {
+  const response = await fetch(`${API_BASE}/admin/compare_models`, {
+    method: "POST",
+  });
+  return handleResponse(response);
+}
+
+export async function evaluateRecommendations() {
+  const response = await fetch(`${API_BASE}/admin/evaluate_recommendations`, {
+    method: "POST",
+  });
+  return handleResponse(response);
+}
