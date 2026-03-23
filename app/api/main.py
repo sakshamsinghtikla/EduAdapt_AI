@@ -176,3 +176,20 @@ def train_baseline() -> dict[str, Any]:
 @app.get("/debug/baseline_metrics")
 def debug_baseline_metrics() -> dict[str, Any]:
     return baseline_trainer.load_metrics()
+
+
+# ===============================
+# Dynamic GNN Training Endpoints
+# ===============================
+
+@app.post("/admin/train_dynamic_gnn")
+def train_dynamic_gnn() -> dict:
+    from app.training.dynamic_gnn_trainer import dynamic_gnn_training_pipeline
+    return dynamic_gnn_training_pipeline.train()
+
+
+@app.get("/debug/dynamic_gnn_metrics")
+def debug_dynamic_gnn_metrics() -> dict:
+    from app.training.dynamic_gnn_trainer import dynamic_gnn_training_pipeline
+    return dynamic_gnn_training_pipeline.load_metrics()
+
