@@ -1,6 +1,8 @@
 from __future__ import annotations
 from app.training.recommendation_evaluator import recommendation_evaluator
 from app.training.benchmark_loader import benchmark_loader
+from fastapi.middleware.cors import CORSMiddleware
+
 
 from typing import Any
 
@@ -18,6 +20,22 @@ from app.utils.metrics import metrics_store
 
 
 app = FastAPI(title="EduAdapt-AI", version="0.1.0")
+
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+
 
 
 class StartSessionRequest(BaseModel):
