@@ -1,19 +1,117 @@
 # EduAdapt-AI
 
-A separate Git-ready AI project for **real-time adaptive assessment** using a **dynamic heterogeneous temporal GNN**.
+EduAdapt-AI is a full-stack adaptive learning system that delivers real-time question recommendations based on student performance, concept mastery, and historical interaction patterns.
+
+The project combines:
+
+- a **FastAPI backend**
+- a **React frontend**
+- a **baseline machine learning model**
+- a **dynamic heterogeneous temporal GNN**
+- **recommendation quality evaluation**
+- **model comparison**
+- **load benchmarking**
+
+It is designed as an end-to-end AI project for adaptive educational assessment rather than only a model demo.
+
+---
 
 ## Project goal
 
 Build an adaptive quiz engine that:
+
 - models students, questions, and concepts as a dynamic graph
 - updates student state after every interaction
-- predicts the probability of a correct next response
+- predicts the probability of a correct response
 - recommends the next best question
-- remains measurable under concurrent multi-student usage
+- evaluates recommendation quality
+- compares baseline and graph-based models
+- measures system performance under concurrent usage
 
-This repo starts with a working **baseline model + FastAPI loop** and includes the first **dynamic GNN module** so the project is a complete AI project rather than only a systems demo.
+---
 
-## Repo structure
+## Current project scope
+
+EduAdapt-AI now includes:
+
+### Backend
+- student session start
+- next-question recommendation
+- answer submission and correctness checking
+- student mastery state tracking
+- event logging
+- temporal dataset generation
+- baseline model training
+- dynamic GNN training
+- model comparison
+- recommendation evaluation
+- benchmark summary loading
+
+### Frontend
+- home page
+- student session page
+- answer feedback panel
+- student dashboard
+- admin panel for model workflows
+
+### Evaluation
+- baseline classification metrics
+- dynamic GNN validation metrics
+- recommendation quality metrics
+- system load/latency benchmarking
+
+---
+
+## Key features
+
+- **Real educational content** instead of placeholder concepts
+- **Adaptive recommendation engine** based on target challenge level
+- **Concept mastery tracking** across student interactions
+- **Baseline model** for correctness prediction
+- **Dynamic GNN model** for graph-based learning
+- **Model comparison pipeline**
+- **Recommendation quality evaluation**
+- **Locust-based concurrency benchmarking**
+- **Frontend UI + Admin controls**
+
+---
+
+## Real educational concepts used
+
+The current real question bank includes topics such as:
+
+- Linear Equations
+- Quadratic Equations
+- Fractions
+- Percentages
+- Probability
+- Geometry
+- Ratios and Proportions
+- Algebra Basics
+
+---
+
+## System architecture
+
+### Student flow
+1. Student starts a session
+2. System recommends the first question
+3. Student submits an answer
+4. Backend checks correctness and updates mastery
+5. System recommends the next best question
+6. Student dashboard displays updated mastery and metrics
+
+### Admin flow
+1. Build temporal dataset
+2. Train baseline model
+3. Train dynamic GNN
+4. Compare models
+5. Evaluate recommendations
+6. Inspect benchmark and report summaries
+
+---
+
+## Repository structure
 
 ```text
 EduAdapt-AI/
@@ -21,9 +119,9 @@ EduAdapt-AI/
 │   ├── api/
 │   │   └── main.py
 │   ├── data/
-│   │   ├── simulator.py
 │   │   ├── question_bank.json
-│   │   └── seed_students.json'
+│   │   ├── seed_students.json
+│   │   └── runtime/
 │   ├── graph/
 │   │   ├── event_processor.py
 │   │   └── feature_store.py
@@ -31,139 +129,35 @@ EduAdapt-AI/
 │   │   ├── baseline.py
 │   │   ├── dynamic_gnn.py
 │   │   └── recommender.py
+│   ├── training/
+│   │   ├── baseline_trainer.py
+│   │   ├── benchmark_loader.py
+│   │   ├── dataset_builder.py
+│   │   ├── dynamic_gnn_trainer.py
+│   │   ├── model_comparison.py
+│   │   └── recommendation_evaluator.py
 │   └── utils/
-│       ├── config.py
 │       └── metrics.py
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── package.json
+│   └── vite.config.js
 ├── load_test/
 │   └── locustfile.py
+├── scripts/
+│   ├── benchmark_summary.py
+│   ├── compare_models.py
+│   ├── evaluate_recommendations.py
+│   ├── train_baseline.py
+│   └── train_dynamic_gnn.py
 ├── tests/
 │   └── test_api.py
 ├── .gitignore
 ├── docker-compose.yml
-└── requirements.txt
-```
-
-## Current scope
-
-### Working now
-- synthetic students and questions
-- baseline correctness predictor
-- question recommender
-- FastAPI endpoints:
-  - `POST /start_session`
-  - `GET /next_question/{student_id}`
-  - `POST /submit_answer`
-  - `GET /student_state/{student_id}`
-  - `GET /metrics`
-- in-memory feature store and event history
-- Locust starter for concurrency testing
-
-### Included for the AI model track
-- heterogeneous temporal GNN module in `app/models/dynamic_gnn.py`
-- graph data builder inside the same file
-- student/question/concept node design that matches the project problem statement
-
-## Setup
-
-Create a fresh Git repo for this project only:
-
-```bash
-git init
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-If you are installing PyTorch and PyTorch Geometric manually for your hardware, install them first and then run:
-
-```bash
-pip install fastapi uvicorn pydantic pandas numpy scikit-learn locust pytest httpx redis
-```
-
-## Run the API
-
-```bash
-uvicorn app.api.main:app --reload
-```
-
-Open:
-- API docs: `http://127.0.0.1:8000/docs`
-
-## Run tests
-
-```bash
-pytest -q
-```
-
-## Run load test
-
-```bash
-locust -f load_test/locustfile.py
-```
-
-Then open Locust UI at `http://127.0.0.1:8089`.
-
-## Core modeling plan
-
-### Baseline
-Logistic-style student ability vs question difficulty:
-
-\[
-p = \sigma(\theta_{student} - b_{question} + w^T x)
-\]
-
-### Main model
-Dynamic heterogeneous temporal GNN with node types:
-- student
-- question
-- concept
-
-Edge types:
-- student -> question: attempted
-- question -> concept: tagged_with
-- concept -> concept: prerequisite
-- student -> concept: mastery_estimate
-
-Targets:
-1. probability of correctness for the next interaction
-2. updated mastery vector over concepts
-
-## Recommended next Git commits
-
-1. `init repo with simulator, api, baseline, recommender`
-2. `add event processor and metrics collection`
-3. `add dynamic heterogeneous temporal gnn module`
-4. `add notebook for baseline training`
-5. `add notebook for dynamic graph training`
-6. `add redis stream integration`
-7. `add dashboard and benchmark plots`
-
-## Evaluation to report later
-
-### ML metrics
-- accuracy
-- F1
-- ROC-AUC
-- calibration
-- recommendation success rate
-- mastery prediction error
-
-### System metrics
-- mean latency
-- P95 latency
-- requests per second
-- throughput
-- error rate
-
-### Real-time adaptation metrics
-- state update time
-- next-question generation time
-- performance under burst traffic
-- baseline vs dynamic-GNN comparison
-
-## Baseline training
-
-After generating interaction events and building the temporal dataset, train the baseline classifier:
-
-```bash
-python scripts/train_baseline.py
+├── requirements.txt
+└── README.md
