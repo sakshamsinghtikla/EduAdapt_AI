@@ -157,3 +157,18 @@ def test_model_comparison() -> None:
 
     debug = client.get("/debug/model_comparison")
     assert debug.status_code == 200
+
+
+
+def test_recommendation_evaluation() -> None:
+    response = client.post("/admin/evaluate_recommendations")
+    assert response.status_code == 200
+    payload = response.json()
+
+    assert "target_zone_rate" in payload
+    assert "repetition_rate" in payload
+    assert "concept_diversity_normalized" in payload
+    assert "interpretation" in payload
+
+    debug = client.get("/debug/recommendation_metrics")
+    assert debug.status_code == 200

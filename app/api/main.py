@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.training.recommendation_evaluator import recommendation_evaluator
 
 from typing import Any
 
@@ -199,3 +200,14 @@ def compare_models() -> dict[str, Any]:
 @app.get("/debug/model_comparison")
 def debug_model_comparison() -> dict[str, Any]:
     return model_comparison.load_comparison()
+
+
+
+@app.post("/admin/evaluate_recommendations")
+def evaluate_recommendations() -> dict[str, Any]:
+    return recommendation_evaluator.evaluate()
+
+
+@app.get("/debug/recommendation_metrics")
+def debug_recommendation_metrics() -> dict[str, Any]:
+    return recommendation_evaluator.load_metrics()
