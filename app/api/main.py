@@ -1,5 +1,6 @@
 from __future__ import annotations
 from app.training.recommendation_evaluator import recommendation_evaluator
+from app.training.benchmark_loader import benchmark_loader
 
 from typing import Any
 
@@ -211,3 +212,8 @@ def evaluate_recommendations() -> dict[str, Any]:
 @app.get("/debug/recommendation_metrics")
 def debug_recommendation_metrics() -> dict[str, Any]:
     return recommendation_evaluator.load_metrics()
+
+
+@app.get("/debug/benchmark_summary")
+def debug_benchmark_summary() -> dict[str, Any]:
+    return benchmark_loader.load_summary()
