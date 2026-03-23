@@ -142,3 +142,18 @@ def test_train_baseline_after_dataset_build() -> None:
 
     metrics = client.get("/debug/baseline_metrics")
     assert metrics.status_code == 200
+
+
+
+def test_model_comparison() -> None:
+    response = client.post("/admin/compare_models")
+    assert response.status_code == 200
+    payload = response.json()
+
+    assert "baseline" in payload
+    assert "dynamic_gnn" in payload
+    assert "summary" in payload
+    assert "winner_by_accuracy" in payload["summary"]
+
+    debug = client.get("/debug/model_comparison")
+    assert debug.status_code == 200

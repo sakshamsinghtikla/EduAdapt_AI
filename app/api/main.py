@@ -11,6 +11,7 @@ from app.models.baseline import baseline_model
 from app.models.recommender import recommender
 from app.training.baseline_trainer import baseline_trainer
 from app.training.dataset_builder import dataset_builder
+from app.training.model_comparison import model_comparison
 from app.utils.metrics import metrics_store
 
 
@@ -178,18 +179,23 @@ def debug_baseline_metrics() -> dict[str, Any]:
     return baseline_trainer.load_metrics()
 
 
-# ===============================
-# Dynamic GNN Training Endpoints
-# ===============================
-
 @app.post("/admin/train_dynamic_gnn")
-def train_dynamic_gnn() -> dict:
+def train_dynamic_gnn() -> dict[str, Any]:
     from app.training.dynamic_gnn_trainer import dynamic_gnn_training_pipeline
     return dynamic_gnn_training_pipeline.train()
 
 
 @app.get("/debug/dynamic_gnn_metrics")
-def debug_dynamic_gnn_metrics() -> dict:
+def debug_dynamic_gnn_metrics() -> dict[str, Any]:
     from app.training.dynamic_gnn_trainer import dynamic_gnn_training_pipeline
     return dynamic_gnn_training_pipeline.load_metrics()
 
+
+@app.post("/admin/compare_models")
+def compare_models() -> dict[str, Any]:
+    return model_comparison.compare()
+
+
+@app.get("/debug/model_comparison")
+def debug_model_comparison() -> dict[str, Any]:
+    return model_comparison.load_comparison()
