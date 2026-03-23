@@ -172,3 +172,8 @@ def test_recommendation_evaluation() -> None:
 
     debug = client.get("/debug/recommendation_metrics")
     assert debug.status_code == 200
+
+
+def test_benchmark_summary_endpoint_exists() -> None:
+    response = client.get("/debug/benchmark_summary")
+    assert response.status_code == 200
