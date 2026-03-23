@@ -6,6 +6,7 @@ export default function Navbar() {
       <div className="navbar-title">EduAdapt-AI</div>
       <div className="navbar-links">
         <Link to="/">Home</Link>
+        <Link to="/admin">Admin</Link>
       </div>
     </nav>
   );
